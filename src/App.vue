@@ -46,7 +46,7 @@
               <p><strong>Subject:</strong> {{ message.Subject }}</p>
             </div>
             <select
-              class="border bg-white rounded p-2 shadow cursor-pointer hover:bg-gray-100 transition"
+              class="border bg-white rounded p-2 px-8 shadow cursor-pointer hover:bg-gray-100 transition"
               @change="handleAction($event, message['Message ID'])"
             >
               <option value="">Actions</option>
