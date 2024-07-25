@@ -23,12 +23,12 @@
       </div>
       <div v-if="loading" class="text-center text-blue-500">Loading...</div>
       <div
-        v-if="messages.length === 0 && !loading"
+        v-if="!loading && messages && messages.length === 0"
         class="text-center text-red-500"
       >
         No messages found.
       </div>
-      <ul v-else class="space-y-4">
+      <ul v-if="!loading && messages && messages.length > 0" class="space-y-4">
         <li
           v-for="message in messages"
           :key="message['Message ID']"
@@ -83,9 +83,9 @@ export default {
         this.loading = true;
         try {
           const response = await axios.get(
-            `http://127.0.0.1:8000/messages?load_number=${this.loadNumber}`
+            `http://127.0.0.1:8000/messages?user_principal_name=admin@bosscargollc.com&load_number=${this.loadNumber}`
           );
-          this.messages = response.data.messages;
+          this.messages = response.data.messages || [];
           console.log(this.messages);
         } catch (error) {
           console.error("Failed to fetch messages:", error);
@@ -101,13 +101,24 @@ export default {
     handleAction(event, messageId) {
       const action = event.target.value;
       if (action === 'assign') {
-        this.assignMessage(messageId);
+        this.assignMessage(messageId, this.loadNumber);
         event.target.selectedIndex = 0;
       }
     },
-    async assignMessage(messageId) {
-      console.log(messageId);
-      alert("success");
+    async assignMessage(messageId, load_number) {
+      try {
+          const TRACKING_URL = "https://tracking.prisunion.uz/telegram_bot/assign/"
+          const response = await axios.post(TRACKING_URL, {"message_id": messageId, "load_number": load_number});
+          this.messages = response.data.messages || [];
+          alert(`Assigned load number#${load_number} to email ✅`)
+          this.loadNumber = ""
+        } catch (error) {
+          alert(`Load number ${load_number} could not be assigned.`)
+          console.error("Failed to assign message:", error);
+          this.messages = [];
+        } finally {
+          this.loading = false;
+        }
     }
   },
 };
